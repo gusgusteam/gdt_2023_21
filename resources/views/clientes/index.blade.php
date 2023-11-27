@@ -863,8 +863,35 @@
                   mostrarerror('error!','error','el interes no puede ser negativo');
                 }
               } else if (result.isDenied) {
-                if($('#interes_credito').val()>=0){
-                
+                if($('#interes_credito').val()>=0 && $("#interes_credito").val().trim().length > 0){
+                  $.ajax({
+                      url: link,
+                      type: "POST",dataType:'json',
+                 
+                      data: {
+                        "opcion_pago"     : $('#tipo_credito').val(),
+                        "anio"            : $('#anio_credito').val(),
+                        "mes"             : $('#mes_credito').val(),
+                        "id_venta"        : $('#id_venta_credito').val(),
+                        "interes"         : $('#interes_credito').val(),
+                        "id_cliente"      : $('#id_cliente_credito').val(),
+                        "_token"          :"{{ csrf_token() }}",
+                      },  
+                      success:function(response){
+                        if (response.error==0){
+                           toastr.success('El registro fue actualizado correctamente.', 'Guardar Registro', {timeOut:3000}); 
+                           $("#example2").DataTable().ajax.reload();
+                           if($('#tipo_credito').val()==3){
+                            cargar_nota_venta($('#id_cliente_venta').val(),$('#anio_nota').val(),$('#mes_nota').val());
+                           }
+                           deuda_cliente($('#id_cliente_credito').val());
+                           $('#completar_credito').modal('hide');
+                           Mostrar_pdf_plan(response.id_plan);
+                        }else{
+                         toastr.error(response.mensaje, 'Guardar Registro', {timeOut:5000});
+                        }
+                      }
+                  })
                 }else{
                   mostrarerror('error!','error','el interes no puede ser negativo');
                 }
